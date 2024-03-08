@@ -98,9 +98,10 @@ def run_model(model: torch.nn.Module,
           early_stopping,
           loss_fn: torch.nn.Module,
           epochs: int,
-          device: torch.device):
+          device: torch.device,
+          model_name):
     
-    writer = SummaryWriter(f'runs/training_{model.__class__.__name__}_{timestamp}')
+    writer = SummaryWriter(f'runs/{timestamp}_{model.__class__.__name__}')
     
     """ Trains and tests a PyTorch model """
     
@@ -163,14 +164,14 @@ def run_model(model: torch.nn.Module,
         # Track best performance, and save the model's state
         if validation_loss < best_vloss:
             best_vloss = validation_loss
-            model_path_state_dict = f"models/model_state_dict_{model.__class__.__name__}_{timestamp}.pth"
+            model_path_state_dict = f"models/{model_name}_state_dict.pth"
             torch.save(model.state_dict(), model_path_state_dict)
-            model_path_full = f"models/model_full_{model.__class__.__name__}_{timestamp}.pth"
+            model_path_full = f"models/{model_name}_full.pth"
             torch.save(model, model_path_full)
             print(f"model saved at epoch: {epoch+1}")
             
         # early stopping
-        early_stopping(validation_loss, validation_acc)  # Monitor validation accuracy
+        early_stopping(validation_loss)  # Monitor validation accuracy
         if early_stopping.early_stop:
           print(f"early stopping at epoch: {epoch}")
           break
